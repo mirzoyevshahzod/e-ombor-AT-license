@@ -16,6 +16,7 @@ class EomborController extends Controller
     public function loginPage(Request $request)
     {
         set_time_limit(0); // Cheksiz vaqtga ruxsat beradi
+        ini_set('memory_limit', '4096M'); // Xotira limitini oshirish
 
         $driver = null;
 
@@ -56,7 +57,7 @@ class EomborController extends Controller
 
             // Kutish: modal yoki URL
             try {
-                $driver->wait(15)->until(
+                $driver->wait(10)->until(
                     WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('.modal'))
                 );
             } catch (Exception $e) {
@@ -100,7 +101,8 @@ class EomborController extends Controller
                 $searchButton->click();
 
                 // Sahifa yuklanishini kutish
-                sleep(10);
+                sleep(7); // 7 soniya kutish
+
 
                 // 14. Jadval ma'lumotlarini kutish
                 $driver->wait(15)->until(
@@ -116,14 +118,14 @@ class EomborController extends Controller
 
                     // "Жадвал бўш" holatini tekshirish
                     if ($count === 1 && trim($cells[0]->getText()) === "Жадвал бўш") {
-                        echo "⚠ Jadvalda faqat bitta ustun topildi: \"Жадвал бўш\"\n";
+                        echo "⚠️ Jadvalda faqat bitta ustun topildi: \"Жадвал бўш\"\n";
                         continue;
                     }
 
-                    if ($count !== 11) {
-                        echo "⚠ Ogohlantirish: Kutilgan 11 ta ustun emas, {$count} ta topildi.\n";
-                        continue;
-                    }
+                    // if ($count !== 11) {
+                    //     echo "⚠️ Ogohlantirish: Kutilgan 11 ta ustun emas, {$count} ta topildi.\n";
+                    //     continue;
+                    // }
 
                     $allData[] = [
                         'document_number'   => isset($cells[0]) ? trim($cells[0]->getText()) ?? null : null,
