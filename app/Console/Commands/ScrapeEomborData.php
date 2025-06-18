@@ -113,7 +113,7 @@ class ScrapeEomborData extends Command
             $this->info('Headings written successfully.');
 
             // 11. Foydalanuvchi kiritgan count qadar datani yig‘ish
-            $endTransitId = $this->generateNextTransitId($startTransitId, $count - 1); // Oxirgi ID
+            $endTransitId = $this->generateNextTransitId($startTransitId, $count); // Oxirgi ID
             $this->info("Scraping from {$startTransitId} to {$endTransitId} (Count: {$count})...");
 
             for ($j = 0; $j < $count; $j++) {

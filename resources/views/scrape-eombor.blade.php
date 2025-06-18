@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>e-ombor scraper</title>
+    <title>e-ombor Scraper</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -31,7 +31,7 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-        input {
+        select, input {
             width: 100%;
             padding: 8px;
             border: 1px solid #ddd;
@@ -64,9 +64,18 @@
         <form action="{{ route('scrape.eombor.process') }}" method="POST">
             @csrf
             <div class="form-group">
+                <label for="command_type">Select Command Type:</label>
+                <select id="command_type" name="command_type" required>
+                    <option value="" disabled selected>Select a command type</option>
+                    <option value="scrape_eombor">Scrape Eombor by Tranzid id</option>
+                    <option value="scrape_mintrans">Scrape Mintrans by Transport number</option>
+                </select>
+                <div class="error" id="command_type_error">Please select a command type</div>
+            </div>
+            <div class="form-group">
                 <label for="start_id">Start ID:</label>
                 <input type="text" id="start_id" name="start_id" required placeholder="Enter a start ID in format ATXXXXXXXXXXX">
-                <div class="error" id="start_id_error">Please enter a valid Start ID:</div>
+                <div class="error" id="start_id_error">Please enter a valid Start ID</div>
             </div>
             <div class="form-group">
                 <label for="count">Count:</label>
@@ -79,15 +88,21 @@
 
     <script>
         document.querySelector('form').addEventListener('submit', function(e) {
+            const commandType = document.getElementById('command_type').value;
             const startId = document.getElementById('start_id').value;
             const count = document.getElementById('count').value;
+            const commandTypeError = document.getElementById('command_type_error');
             const startIdError = document.getElementById('start_id_error');
             const countError = document.getElementById('count_error');
 
+            commandTypeError.style.display = 'none';
             startIdError.style.display = 'none';
             countError.style.display = 'none';
 
-            if (!/^[A-Z]{2}\d{11}$/.test(startId)) {
+            if (!commandType) {
+                e.preventDefault();
+                commandTypeError.style.display = 'block';
+            } else if (!/^[A-Z]{2}\d{11}$/.test(startId)) {
                 e.preventDefault();
                 startIdError.style.display = 'block';
             } else if (count <= 0 || !Number.isInteger(Number(count))) {
