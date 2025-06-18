@@ -1,10 +1,7 @@
 <?php
 
-use App\Http\Controllers\EomborController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EomborScrapeController;
 
-Route::get('/', function () {
-    return view('e-ombor');
-});
-
-Route::post('/e-ombor-login', [EomborController::class, 'loginPage'])->name('e-ombor-login');
+Route::get('/', [EomborScrapeController::class, 'index'])->name('scrape.eombor');
+Route::post('/', [EomborScrapeController::class, 'scrape'])->name('scrape.eombor.process');
