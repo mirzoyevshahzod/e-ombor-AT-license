@@ -6,6 +6,11 @@
     <title>e-ombor Scraper</title>
     <style>
         body {
+            background-image: url('https://egsgroupapp.uz/storage/images/bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
             font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
