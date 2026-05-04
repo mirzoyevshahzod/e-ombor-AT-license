@@ -66,6 +66,7 @@ class ScrapeEomborData extends Command
             // 5. "Kirish" tugmasi va modal
             $this->info('Clicking sign-in button...');
             $driver->findElement(WebDriverBy::cssSelector('a.sign-in'))->click();
+            sleep(10);
             $this->info('Sign-in button clicked.');
 
             // 6. URL o‘zgarishini kutish (modal qo‘l bilan to‘ldiriladi)
@@ -74,6 +75,7 @@ class ScrapeEomborData extends Command
                 return strpos($driver->getCurrentURL(), '/uzOmbor/indexUzOmbor.jsp') !== false;
             });
             $this->info('URL changed successfully.');
+            sleep(5); // Qo‘shimcha kutish, agar kerak bo‘lsa
 
             // 7. Qidiruv menyusiga kirish
             $this->info('Opening search menu...');
@@ -88,6 +90,7 @@ class ScrapeEomborData extends Command
                 WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::cssSelector('a[onclick="MainUzOmbor(507)"]'))
             )->click();
             $this->info('Transit section navigated.');
+
 
             // 9. Sarlavhalarni yozish (12 ta ustun)
             $this->info('Writing Excel headings...');
@@ -129,6 +132,12 @@ class ScrapeEomborData extends Command
                     $atrwInput->sendKeys($currentTransitId);
                     $this->info("ID entered successfully.");
 
+                    $driver->wait(20)->until(
+                        WebDriverExpectedCondition::invisibilityOfElementLocated(
+                            WebDriverBy::cssSelector('.loader-wrapper-offcanvas')
+                        )
+                    );
+
                     $this->info("Clicking search button...");
                     $searchButton = $driver->wait(10)->until(
                         WebDriverExpectedCondition::elementToBeClickable(WebDriverBy::cssSelector('button[onclick="qidirishEtranzit()"]'))
@@ -142,14 +151,14 @@ class ScrapeEomborData extends Command
                         $alert = $driver->switchTo()->alert();
                         $this->warn("Skip: Alert detected - {$alert->getText()}");
                         $alert->accept();
-                        sleep(5);
+                        sleep(1);
                         $this->info("Alert handled, moving to next ID.");
                         continue;
                     } catch (Exception $e) {
                         $this->info("No alert detected.");
                     }
 
-                    sleep(5);
+                    sleep(1);
                     $this->info("Waiting for table to load...");
                     $driver->wait(15)->until(
                         WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('#win table'))
@@ -163,6 +172,7 @@ class ScrapeEomborData extends Command
                         $cells = $row->findElements(WebDriverBy::cssSelector('td'));
                         $countCells = count($cells);
                         $this->info("Row #{$j} has {$countCells} cells.");
+
 
                         if ($countCells === 1) {
                             $firstCellText = trim($cells[0]->getText());
@@ -181,16 +191,25 @@ class ScrapeEomborData extends Command
                         }
 
                         // Recipient Name'dan INN va Recipient Name'ni ajratish
-                        $recipientData = $data[6] ?? '';
+    
+                        $recipientData = trim($data[6] ?? '');
+
                         $inn = '';
                         $recipientName = '';
-                        if (preg_match('/^(\d+)\s+(.*)$/', $recipientData, $matches)) {
+
+                        if (preg_match('/^(\d{9})\s+(.*)$/u', $recipientData, $matches)) {
                             $inn = $matches[1];
                             $recipientName = $matches[2];
                         } else {
                             $recipientName = $recipientData;
                         }
+
+                        // nomni tozalash
+                        $recipientName = trim($recipientName);
+                        $recipientName = preg_replace('/["]+/u', '', $recipientName);
+
                         $this->info("INN: '{$inn}', Recipient Name: '{$recipientName}'");
+
 
                         // INN uzunligini tekshirish (faqat 9 ta raqam)
                         if (empty($inn) || strlen($inn) !== 9) {
@@ -227,6 +246,7 @@ class ScrapeEomborData extends Command
             $writer = new Xlsx($spreadsheet);
             $writer->save($filePath);
             $this->info('Excel file saved successfully: ' . $filePath);
+
 
             if (!file_exists($filePath) || filesize($filePath) == 0) {
                 throw new Exception('Fayl yozishda xatolik yuzaga keldi: ' . $filePath);

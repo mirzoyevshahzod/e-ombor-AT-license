@@ -9,6 +9,7 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Illuminate\Console\Command;
+use Facebook\WebDriver\Chrome\ChromeOptions;
 use Illuminate\Support\Facades\Storage;
 use Exception;
 
@@ -58,7 +59,15 @@ class ScrapeTransportCommand extends Command
             // 2. Selenium bilan Chrome brauzerni ishga tushurish
             $this->info('Initializing WebDriver...');
             $host = 'http://localhost:4444/wd/hub';
+            $chreomeOptioms = new ChromeOptions();
+            $chreomeOptioms->addArguments([
+                '--headless',
+                '--disable-gpu', 
+                '--no-sandbox',
+                '--start-maximized'
+            ]);
             $capabilities = DesiredCapabilities::chrome();
+            $capabilities->setCapability(ChromeOptions::CAPABILITY, $chreomeOptioms);
             $driver = RemoteWebDriver::create($host, $capabilities);
             $this->info('WebDriver initialized successfully.');
 

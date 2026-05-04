@@ -65,7 +65,8 @@
 </head>
 <body>
     <div class="container">
-        <h2>e-ombor Data Scraper</h2>
+        <h1>e-ombor AT LITYSENZIYA</h1>
+        <h2>AT LITYSENZIYA e-ombor Data Scraper</h2>
         <form action="{{ route('scrape.eombor.process') }}" method="POST">
             @csrf
             <div class="form-group">
